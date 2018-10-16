@@ -11,6 +11,7 @@ import { secondsToPixels, secondsToSamples } from './utils/conversions';
 import stateClasses from './track/states';
 
 import CanvasHook from './render/CanvasHook';
+import ImageCanvasHook from './render/ImageCanvasHook';
 import FadeCanvasHook from './render/FadeCanvasHook';
 import VolumeSliderHook from './render/VolumeSliderHook';
 
@@ -439,7 +440,8 @@ export default class {
             height: data.height,
             style: 'float: left; position: relative; margin: 0; padding: 0; z-index: 3;',
           },
-          hook: new CanvasHook(peaks, offset, this.peaks.bits, canvasColor),
+          // hook: new CanvasHook(peaks, offset, this.peaks.bits, canvasColor),
+          hook: new ImageCanvasHook(offset),
         }));
 
         totalWidth -= currentWidth;
