@@ -10,6 +10,7 @@ import LoaderFactory from './track/loader/LoaderFactory';
 import ScrollHook from './render/ScrollHook';
 import TimeScale from './TimeScale';
 import Track from './Track';
+import ImageTrack from './ImageTrack';
 import Playout from './Playout';
 import AnnotationList from './annotation/AnnotationList';
 
@@ -341,11 +342,12 @@ export default class {
         const peaks = info.peaks || { type: 'WebAudio', mono: this.mono };
         const customClass = info.customClass || undefined;
         const waveOutlineColor = info.waveOutlineColor || undefined;
+        const image = info.img || undefined;
 
         // webaudio specific playout for now.
         const playout = new Playout(this.ac, audioBuffer);
 
-        const track = new Track();
+        const track = image ? new ImageTrack() : new Track();
         track.src = info.src;
         track.setBuffer(audioBuffer);
         track.setName(name);
@@ -354,6 +356,11 @@ export default class {
         track.setCues(cueIn, cueOut);
         track.setCustomClass(customClass);
         track.setWaveOutlineColor(waveOutlineColor);
+
+        if (image !== undefined) {
+          track.setImage(image);
+        }
+
 
         if (fadeIn !== undefined) {
           track.setFadeIn(fadeIn.duration, fadeIn.shape);
