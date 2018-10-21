@@ -2,9 +2,7 @@ import _assign from 'lodash.assign';
 
 import h from 'virtual-dom/h';
 
-import extractPeaks from 'webaudio-peaks';
-
-import { secondsToPixels, secondsToSamples } from './utils/conversions';
+import { secondsToPixels } from './utils/conversions';
 import stateClasses from './track/states';
 
 import ImageCanvasHook from './render/ImageCanvasHook';
@@ -19,10 +17,6 @@ export default class {
     this.customClass = undefined;
     this.waveOutlineColor = undefined;
     this.gain = 1;
-    this.peakData = {
-      type: 'WebAudio',
-      mono: false,
-    };
 
     this.cueIn = 0;
     this.cueOut = 0;
@@ -126,19 +120,16 @@ export default class {
     this.buffer = buffer;
   }
 
-  setPeakData(data) { // eslint-disable-line class-methods-use-this
-    this.peakData = data;
+  setPeakData() { // eslint-disable-line class-methods-use-this
+    // no peak data
   }
 
-  calculatePeaks(samplesPerPixel, sampleRate) {
-    const cueIn = secondsToSamples(this.cueIn, sampleRate);
-    const cueOut = secondsToSamples(this.cueOut, sampleRate);
-
-    this.setPeaks(extractPeaks(this.buffer, samplesPerPixel, this.peakData.mono, cueIn, cueOut));
+  calculatePeaks() {  // eslint-disable-line class-methods-use-this
+   // no peak data
   }
 
-  setPeaks(peaks) {
-    this.peaks = peaks;
+  setPeaks() { // eslint-disable-line class-methods-use-this
+    // no peak data
   }
 
   setState(state) {
@@ -279,7 +270,7 @@ export default class {
   renderControls(data) {
     const muteClass = data.muted ? '.active' : '';
     const soloClass = data.soloed ? '.active' : '';
-    const numChan = this.peaks.data.length;
+    const numChan = 1;
 
     return h('div.controls',
       {
@@ -305,12 +296,12 @@ export default class {
   }
 
   render(data) {
-    const width = this.peaks.length;
+    const width = 300; // TODO: calc from png
     const playbackX = secondsToPixels(data.playbackSeconds, data.resolution, data.sampleRate);
     const startX = secondsToPixels(this.startTime, data.resolution, data.sampleRate);
     const endX = secondsToPixels(this.endTime, data.resolution, data.sampleRate);
     let progressWidth = 0;
-    const numChan = this.peaks.data.length;
+    const numChan = 1;
 
     if (playbackX > 0 && playbackX > startX) {
       if (playbackX < endX) {
@@ -328,7 +319,8 @@ export default class {
       }),
     ];
 
-    const channels = Object.keys(this.peaks.data).map((channelNum) => {
+    // one channel only
+    const channels = Object.keys({ 0: {} }).map((channelNum) => {
       const channelChildren = [
         h('div.channel-progress', {
           attributes: {
