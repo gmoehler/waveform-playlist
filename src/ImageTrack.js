@@ -40,8 +40,8 @@ export default class {
     this.customClass = className;
   }
 
-  setWaveOutlineColor(color) {
-    this.waveOutlineColor = color;
+  setWaveOutlineColor() { // eslint-disable-line class-methods-use-this
+    // no waveform
   }
 
   setCues(cueIn, cueOut) {
@@ -80,12 +80,12 @@ export default class {
     this.endTime = start + this.duration;
   }
 
-  setPlayout(playout) {
-    this.playout = playout;
+  setPlayout() { // eslint-disable-line class-methods-use-this
+    // no playing
   }
 
-  setOfflinePlayout(playout) {
-    this.offlinePlayout = playout;
+  setOfflinePlayout() { // eslint-disable-line class-methods-use-this
+    // no playing
   }
 
   setEnabledStates(enabledStates = {}) {
@@ -209,12 +209,11 @@ export default class {
   renderControls(data) {
     const muteClass = data.muted ? '.active' : '';
     const soloClass = data.soloed ? '.active' : '';
-    const numChan = 1;
 
     return h('div.controls',
       {
         attributes: {
-          style: `height: ${numChan * data.height}px; width: ${data.controls.width}px; position: absolute; left: 0; z-index: 10;`,
+          style: `height: ${data.height}px; width: ${data.controls.width}px; position: absolute; left: 0; z-index: 10;`,
         },
       }, [
         h('header', [this.name]),
@@ -235,68 +234,40 @@ export default class {
   }
 
   render(data) {
-    const width = 300; // TODO: calc from png
-    const playbackX = secondsToPixels(data.playbackSeconds, data.resolution, data.sampleRate);
+    const width = (300 * 3000) / data.resolution; // TODO: calc width from png width
     const startX = secondsToPixels(this.startTime, data.resolution, data.sampleRate);
-    const endX = secondsToPixels(this.endTime, data.resolution, data.sampleRate);
-    let progressWidth = 0;
-    const numChan = 1;
 
-    if (playbackX > 0 && playbackX > startX) {
-      if (playbackX < endX) {
-        progressWidth = playbackX - startX;
-      } else {
-        progressWidth = width;
-      }
+    const waveformChildren = [];
+    const channelChilds = [];
+    let offset = 0;
+    let totalWidth = width;
+
+    while (totalWidth > 0) {
+      const currentWidth = Math.min(totalWidth, MAX_CANVAS_WIDTH);
+
+      channelChilds.push(h('canvas', {
+        attributes: {
+          width: currentWidth,
+          height: data.height,
+          style: 'float: left; position: relative; margin: 0; padding: 0; z-index: 3;',
+        },
+        hook: new ImageCanvasHook(this.imageName, offset),
+      }));
+
+      totalWidth -= currentWidth;
+      offset += MAX_CANVAS_WIDTH;
     }
 
-    const waveformChildren = [
-      h('div.cursor', {
+    const channel = h(`div.channel.channel-${0}`,
+      {
         attributes: {
-          style: `position: absolute; width: 1px; margin: 0; padding: 0; top: 0; left: ${playbackX}px; bottom: 0; z-index: 5;`,
+          style: `height: ${data.height}px; width: ${width}px; top: 0px; left: ${startX}px; position: absolute; margin: 0; padding: 0; z-index: 1;`,
         },
-      }),
-    ];
-
-    // one channel only
-    const channels = Object.keys({ 0: {} }).map((channelNum) => {
-      const channelChildren = [
-        h('div.channel-progress', {
-          attributes: {
-            style: `position: absolute; width: ${progressWidth}px; height: ${data.height}px; z-index: 2;`,
-          },
-        }),
-      ];
-      let offset = 0;
-      let totalWidth = width;
-
-      while (totalWidth > 0) {
-        const currentWidth = Math.min(totalWidth, MAX_CANVAS_WIDTH);
-
-        channelChildren.push(h('canvas', {
-          attributes: {
-            width: currentWidth,
-            height: data.height,
-            style: 'float: left; position: relative; margin: 0; padding: 0; z-index: 3;',
-          },
-          hook: new ImageCanvasHook(this.imageName, offset),
-        }));
-
-        totalWidth -= currentWidth;
-        offset += MAX_CANVAS_WIDTH;
-      }
-
-      return h(`div.channel.channel-${channelNum}`,
-        {
-          attributes: {
-            style: `height: ${data.height}px; width: ${width}px; top: ${channelNum * data.height}px; left: ${startX}px; position: absolute; margin: 0; padding: 0; z-index: 1;`,
-          },
-        },
-        channelChildren,
+      },
+        channelChilds,
       );
-    });
 
-    waveformChildren.push(channels);
+    waveformChildren.push([channel]);
     waveformChildren.push(this.renderOverlay(data));
 
     // draw cursor selection on active track.
@@ -316,7 +287,7 @@ export default class {
     const waveform = h('div.waveform',
       {
         attributes: {
-          style: `height: ${numChan * data.height}px; position: relative;`,
+          style: `height: ${data.height}px; position: relative;`,
         },
       },
       waveformChildren,
@@ -338,7 +309,7 @@ export default class {
     return h(`div.channel-wrapper${audibleClass}${customClass}`,
       {
         attributes: {
-          style: `margin-left: ${channelMargin}px; height: ${data.height * numChan}px;`,
+          style: `margin-left: ${channelMargin}px; height: ${data.height}px;`,
         },
       },
       channelChildren,
