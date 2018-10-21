@@ -15,8 +15,6 @@ export default class {
     this.name = 'Untitled';
     this.imageName = undefined;
     this.customClass = undefined;
-    this.waveOutlineColor = undefined;
-    this.gain = 1;
 
     this.cueIn = 0;
     this.cueOut = 0;
@@ -116,8 +114,8 @@ export default class {
     // no fades
   }
 
-  setBuffer(buffer) {
-    this.buffer = buffer;
+  setBuffer() { // eslint-disable-line class-methods-use-this
+    // no playing
   }
 
   setPeakData() { // eslint-disable-line class-methods-use-this
@@ -155,90 +153,31 @@ export default class {
     return this.duration;
   }
 
-  isPlaying() {
-    return this.playout.isPlaying();
+  isPlaying() { // eslint-disable-line class-methods-use-this
+    return false; // no playing
   }
 
-  setShouldPlay(bool) {
-    this.playout.setShouldPlay(bool);
+  setShouldPlay() { // eslint-disable-line class-methods-use-this
+    // no playing
   }
 
-  setGainLevel(level) {
-    this.gain = level;
-    this.playout.setVolumeGainLevel(level);
+  setGainLevel() {  // eslint-disable-line class-methods-use-this
+   // no playing
   }
 
-  setMasterGainLevel(level) {
-    this.playout.setMasterGainLevel(level);
+  setMasterGainLevel() {  // eslint-disable-line class-methods-use-this
+    // no playing
   }
 
   /*
-    startTime, endTime in seconds (float).
-    segment is for a highlighted section in the UI.
-
-    returns a Promise that will resolve when the AudioBufferSource
-    is either stopped or plays out naturally.
+    cannot be played for now, will stop when no other track is available
   */
-  schedulePlay(now, startTime, endTime, config) {
-    let start;
-    let duration;
-    let when = now;
-    let segment = (endTime) ? (endTime - startTime) : undefined;
-
-    const defaultOptions = {
-      shouldPlay: true,
-      masterGain: 1,
-      isOffline: false,
-    };
-
-    const options = _assign({}, defaultOptions, config);
-    const playoutSystem = options.isOffline ? this.offlinePlayout : this.playout;
-
-    // 1) track has no content to play.
-    // 2) track does not play in this selection.
-    if ((this.endTime <= startTime) || (segment && (startTime + segment) < this.startTime)) {
-      // return a resolved promise since this track is technically "stopped".
-      return Promise.resolve();
-    }
-
-    // track should have something to play if it gets here.
-
-    // the track starts in the future or on the cursor position
-    if (this.startTime >= startTime) {
-      start = 0;
-      // schedule additional delay for this audio node.
-      when += (this.startTime - startTime);
-
-      if (endTime) {
-        segment -= (this.startTime - startTime);
-        duration = Math.min(segment, this.duration);
-      } else {
-        duration = this.duration;
-      }
-    } else {
-      start = startTime - this.startTime;
-
-      if (endTime) {
-        duration = Math.min(segment, this.duration - start);
-      } else {
-        duration = this.duration - start;
-      }
-    }
-
-    start += this.cueIn;
-    const sourcePromise = playoutSystem.setUpSource();
-
-
-    playoutSystem.setVolumeGainLevel(this.gain);
-    playoutSystem.setShouldPlay(options.shouldPlay);
-    playoutSystem.setMasterGainLevel(options.masterGain);
-    playoutSystem.play(when, start, duration);
-
-    return sourcePromise;
+  schedulePlay() { // eslint-disable-line class-methods-use-this
+    return Promise.resolve();
   }
 
-  scheduleStop(when = 0) {
-    this.playout.stop(when);
+  scheduleStop() { // eslint-disable-line class-methods-use-this
+    // no playing
   }
 
   renderOverlay(data) {
