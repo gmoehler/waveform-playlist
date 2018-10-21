@@ -53,6 +53,14 @@ playlist.load([
     start: 23.5,
     cuein: 15,
   },
+  {
+    src: 'media/audio/Guitar30.mp3',
+    img: 'media/image/poi2.png',
+    name: 'Spirals',
+    start: 3,
+    cuein: 15,
+  },
+
 ]).then(() => {
   // can do stuff with the playlist.
 
