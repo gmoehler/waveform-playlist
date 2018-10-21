@@ -1,19 +1,13 @@
 import _assign from 'lodash.assign';
-import _forOwn from 'lodash.forown';
 
-import uuid from 'uuid';
 import h from 'virtual-dom/h';
 
 import extractPeaks from 'webaudio-peaks';
-import { FADEIN, FADEOUT } from 'fade-maker';
 
 import { secondsToPixels, secondsToSamples } from './utils/conversions';
 import stateClasses from './track/states';
 
-import CanvasHook from './render/CanvasHook';
 import ImageCanvasHook from './render/ImageCanvasHook';
-import FadeCanvasHook from './render/FadeCanvasHook';
-import VolumeSliderHook from './render/VolumeSliderHook';
 
 const MAX_CANVAS_WIDTH = 1000;
 
@@ -25,7 +19,6 @@ export default class {
     this.customClass = undefined;
     this.waveOutlineColor = undefined;
     this.gain = 1;
-    this.fades = {};
     this.peakData = {
       type: 'WebAudio',
       mono: false,
@@ -106,8 +99,6 @@ export default class {
   setEnabledStates(enabledStates = {}) {
     const defaultStatesEnabled = {
       cursor: true,
-      fadein: true,
-      fadeout: true,
       select: true,
       shift: true,
     };
@@ -115,66 +106,27 @@ export default class {
     this.enabledStates = _assign({}, defaultStatesEnabled, enabledStates);
   }
 
-  setFadeIn(duration, shape = 'logarithmic') {
-    if (duration > this.duration) {
-      throw new Error('Invalid Fade In');
-    }
-
-    const fade = {
-      shape,
-      start: 0,
-      end: duration,
-    };
-
-    if (this.fadeIn) {
-      this.removeFade(this.fadeIn);
-      this.fadeIn = undefined;
-    }
-
-    this.fadeIn = this.saveFade(FADEIN, fade.shape, fade.start, fade.end);
+  setFadeIn() { // eslint-disable-line class-methods-use-this
+    // no fades
   }
 
-  setFadeOut(duration, shape = 'logarithmic') {
-    if (duration > this.duration) {
-      throw new Error('Invalid Fade Out');
-    }
-
-    const fade = {
-      shape,
-      start: this.duration - duration,
-      end: this.duration,
-    };
-
-    if (this.fadeOut) {
-      this.removeFade(this.fadeOut);
-      this.fadeOut = undefined;
-    }
-
-    this.fadeOut = this.saveFade(FADEOUT, fade.shape, fade.start, fade.end);
+  setFadeOut() { // eslint-disable-line class-methods-use-this
+    // no fades
   }
 
-  saveFade(type, shape, start, end) {
-    const id = uuid.v4();
-
-    this.fades[id] = {
-      type,
-      shape,
-      start,
-      end,
-    };
-
-    return id;
+  saveFade() { // eslint-disable-line class-methods-use-this
+    // no fades
   }
 
-  removeFade(id) {
-    delete this.fades[id];
+  removeFade() { // eslint-disable-line class-methods-use-this
+    // no fades
   }
 
   setBuffer(buffer) {
     this.buffer = buffer;
   }
 
-  setPeakData(data) {
+  setPeakData(data) { // eslint-disable-line class-methods-use-this
     this.peakData = data;
   }
 
@@ -283,40 +235,8 @@ export default class {
     }
 
     start += this.cueIn;
-    const relPos = startTime - this.startTime;
     const sourcePromise = playoutSystem.setUpSource();
 
-    // param relPos: cursor position in seconds relative to this track.
-    // can be negative if the cursor is placed before the start of this track etc.
-    _forOwn(this.fades, (fade) => {
-      let fadeStart;
-      let fadeDuration;
-
-      // only apply fade if it's ahead of the cursor.
-      if (relPos < fade.end) {
-        if (relPos <= fade.start) {
-          fadeStart = now + (fade.start - relPos);
-          fadeDuration = fade.end - fade.start;
-        } else if (relPos > fade.start && relPos < fade.end) {
-          fadeStart = now - (relPos - fade.start);
-          fadeDuration = fade.end - fade.start;
-        }
-
-        switch (fade.type) {
-          case FADEIN: {
-            playoutSystem.applyFadeIn(fadeStart, fadeDuration, fade.shape);
-            break;
-          }
-          case FADEOUT: {
-            playoutSystem.applyFadeOut(fadeStart, fadeDuration, fade.shape);
-            break;
-          }
-          default: {
-            throw new Error('Invalid fade type saved on track.');
-          }
-        }
-      }
-    });
 
     playoutSystem.setVolumeGainLevel(this.gain);
     playoutSystem.setShouldPlay(options.shouldPlay);
@@ -380,20 +300,6 @@ export default class {
             },
           }, ['Solo']),
         ]),
-        h('label', [
-          h('input.volume-slider', {
-            attributes: {
-              type: 'range',
-              min: 0,
-              max: 100,
-              value: 100,
-            },
-            hook: new VolumeSliderHook(this.gain),
-            oninput: (e) => {
-              this.ee.emit('volumechange', e.target.value, this);
-            },
-          }),
-        ]),
       ],
     );
   }
@@ -432,13 +338,9 @@ export default class {
       ];
       let offset = 0;
       let totalWidth = width;
-      const peaks = this.peaks.data[channelNum];
 
       while (totalWidth > 0) {
         const currentWidth = Math.min(totalWidth, MAX_CANVAS_WIDTH);
-        const canvasColor = this.waveOutlineColor
-          ? this.waveOutlineColor
-          : data.colors.waveOutlineColor;
 
         channelChildren.push(h('canvas', {
           attributes: {
@@ -446,76 +348,11 @@ export default class {
             height: data.height,
             style: 'float: left; position: relative; margin: 0; padding: 0; z-index: 3;',
           },
-          // hook: new CanvasHook(peaks, offset, this.peaks.bits, canvasColor),
           hook: new ImageCanvasHook(this.imageName, offset),
         }));
 
         totalWidth -= currentWidth;
         offset += MAX_CANVAS_WIDTH;
-      }
-
-      // if there are fades, display them.
-      if (this.fadeIn) {
-        const fadeIn = this.fades[this.fadeIn];
-        const fadeWidth = secondsToPixels(
-          fadeIn.end - fadeIn.start,
-          data.resolution,
-          data.sampleRate,
-        );
-
-        channelChildren.push(h('div.wp-fade.wp-fadein',
-          {
-            attributes: {
-              style: `position: absolute; height: ${data.height}px; width: ${fadeWidth}px; top: 0; left: 0; z-index: 4;`,
-            },
-          }, [
-            h('canvas',
-              {
-                attributes: {
-                  width: fadeWidth,
-                  height: data.height,
-                },
-                hook: new FadeCanvasHook(
-                  fadeIn.type,
-                  fadeIn.shape,
-                  fadeIn.end - fadeIn.start,
-                  data.resolution,
-                ),
-              },
-            ),
-          ],
-        ));
-      }
-
-      if (this.fadeOut) {
-        const fadeOut = this.fades[this.fadeOut];
-        const fadeWidth = secondsToPixels(
-          fadeOut.end - fadeOut.start,
-          data.resolution,
-          data.sampleRate,
-        );
-
-        channelChildren.push(h('div.wp-fade.wp-fadeout',
-          {
-            attributes: {
-              style: `position: absolute; height: ${data.height}px; width: ${fadeWidth}px; top: 0; right: 0; z-index: 4;`,
-            },
-          },
-          [
-            h('canvas', {
-              attributes: {
-                width: fadeWidth,
-                height: data.height,
-              },
-              hook: new FadeCanvasHook(
-                fadeOut.type,
-                fadeOut.shape,
-                fadeOut.end - fadeOut.start,
-                data.resolution,
-              ),
-            }),
-          ],
-        ));
       }
 
       return h(`div.channel.channel-${channelNum}`,
@@ -587,24 +424,6 @@ export default class {
       cuein: this.cueIn,
       cueout: this.cueOut,
     };
-
-    if (this.fadeIn) {
-      const fadeIn = this.fades[this.fadeIn];
-
-      info.fadeIn = {
-        shape: fadeIn.shape,
-        duration: fadeIn.end - fadeIn.start,
-      };
-    }
-
-    if (this.fadeOut) {
-      const fadeOut = this.fades[this.fadeOut];
-
-      info.fadeOut = {
-        shape: fadeOut.shape,
-        duration: fadeOut.end - fadeOut.start,
-      };
-    }
 
     return info;
   }

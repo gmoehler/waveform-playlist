@@ -49,12 +49,8 @@ playlist.load([
   {
     src: 'media/audio/Guitar30.mp3',
     img: 'media/image/poi.png',
-    name: 'Guitar',
+    name: 'Spirals',
     start: 23.5,
-    fadeOut: {
-      shape: 'linear',
-      duration: 0.5,
-    },
     cuein: 15,
   },
 ]).then(() => {
