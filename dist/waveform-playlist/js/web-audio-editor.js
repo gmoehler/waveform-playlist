@@ -35,8 +35,8 @@ playlist.load([
   {
     src: 'media/audio/BassDrums30.mp3',
     name: 'Drums',
-    start: 0,
-    soloed: true,
+    start: 3,
+    soloed: false,
     fadeIn: {
       shape: 'logarithmic',
       duration: 0.5,
@@ -48,17 +48,29 @@ playlist.load([
   },
   {
     src: 'media/audio/Guitar30.mp3',
+    name: 'Guitar',
+    start: 23.5,
+    cuein: 16,
+    waveOutlineColor: '#c0dce0',
+  },
+  {
+    src: 'media/audio/Guitar30.mp3',
     img: 'media/image/poi.png',
+    frameStep: 10, // one image frame is 10ms
     name: 'Spirals',
     start: 23.5,
-    cuein: 15,
+    cuein: 0,
+    cueout: 1.47,
   },
   {
     src: 'media/audio/Guitar30.mp3',
     img: 'media/image/poi2.png',
     name: 'Spirals',
+    frameStep: 10, // one image frame is 10ms
     start: 3,
-    cuein: 15,
+    cuein: 0,
+    cueout: 1.47,
+
   },
 
 ]).then(() => {

@@ -21,6 +21,7 @@ export default class {
     this.duration = 0;
     this.startTime = 0;
     this.endTime = 0;
+    this.sampleRate = 100; // 10ma per frame TODO: load from data
   }
 
   setEventEmitter(ee) {
@@ -234,6 +235,8 @@ export default class {
   }
 
   render(data) {
+    const pixPerSec = data.sampleRate / data.resolution;
+    const factor = pixPerSec / this.sampleRate;
     const width = (300 * 3000) / data.resolution; // TODO: calc width from png width
     const startX = secondsToPixels(this.startTime, data.resolution, data.sampleRate);
 
@@ -251,7 +254,7 @@ export default class {
           height: data.height,
           style: 'float: left; position: relative; margin: 0; padding: 0; z-index: 3;',
         },
-        hook: new ImageCanvasHook(this.imageName, offset),
+        hook: new ImageCanvasHook(this.imageName, offset, factor),
       }));
 
       totalWidth -= currentWidth;
