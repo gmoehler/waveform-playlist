@@ -1,4 +1,5 @@
 import EventEmitter from 'event-emitter';
+import { PNG as PNGReader } from 'pngjs';
 
 export const STATE_UNINITIALIZED = 0;
 export const STATE_LOADING = 1;
@@ -39,7 +40,17 @@ export default class {
     this.setStateChange(STATE_DECODING);
 
     return new Promise((resolve, reject) => {
-      this.ac.decodeAudioData(
+      if (e.target.responseURL.endsWith('png')) {
+        const reader = new PNGReader();
+        reader.parse(audioData, (err, png) => {
+          if (err) {
+            reject(err);
+          }
+          // mimic audioBuffer which has a duration
+          resolve(png);
+        });
+      } else {
+        this.ac.decodeAudioData(
         audioData,
         (audioBuffer) => {
           this.audioBuffer = audioBuffer;
@@ -51,6 +62,7 @@ export default class {
           reject(err);
         },
       );
+      }
     });
   }
 }

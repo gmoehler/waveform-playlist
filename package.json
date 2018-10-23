@@ -57,6 +57,7 @@
     "lodash.defaults": "^4.0.0",
     "lodash.forown": "^4.0.0",
     "mucss": "^1.1.5",
+    "pngjs": "^3.3.3",
     "uuid": "^2.0.1",
     "virtual-dom": "^2.1.1",
     "webaudio-peaks": "^0.0.6"

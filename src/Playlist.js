@@ -323,18 +323,22 @@ export default class {
       return loader.load();
     });
 
+    // audioBuffer can be an png as well
     return Promise.all(loadPromises).then((audioBuffers) => {
       this.ee.emit('audiosourcesloaded');
 
       const tracks = audioBuffers.map((audioBuffer, index) => {
         const info = trackList[index];
+        const isPng = info.src.endsWith('.png');
         const name = info.name || 'Untitled';
         const start = info.start || 0;
         const states = info.states || {};
         const fadeIn = info.fadeIn;
         const fadeOut = info.fadeOut;
         const cueIn = info.cuein || 0;
-        const cueOut = info.cueout || audioBuffer.duration;
+        const cueOut = info.cueout || (isPng ?
+          (audioBuffer.width / info.sampleRate) // TODO: check info.sampleRate
+          : audioBuffer.duration);
         const gain = info.gain || 1;
         const muted = info.muted || false;
         const soloed = info.soloed || false;
@@ -342,12 +346,11 @@ export default class {
         const peaks = info.peaks || { type: 'WebAudio', mono: this.mono };
         const customClass = info.customClass || undefined;
         const waveOutlineColor = info.waveOutlineColor || undefined;
-        const image = info.img || undefined;
 
         // webaudio specific playout for now.
         const playout = new Playout(this.ac, audioBuffer);
 
-        const track = image ? new ImageTrack() : new Track();
+        const track = isPng ? new ImageTrack() : new Track();
         track.src = info.src;
         track.setBuffer(audioBuffer);
         track.setName(name);
@@ -357,10 +360,9 @@ export default class {
         track.setCustomClass(customClass);
         track.setWaveOutlineColor(waveOutlineColor);
 
-        if (image !== undefined) {
-          track.setImage(image);
+        if (isPng && info.sampleRate !== undefined) {
+          track.setSampleRate(info.sampleRate);
         }
-
 
         if (fadeIn !== undefined) {
           track.setFadeIn(fadeIn.duration, fadeIn.shape);

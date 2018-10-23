@@ -54,19 +54,18 @@ playlist.load([
     waveOutlineColor: '#c0dce0',
   },
   {
-    src: 'media/audio/Guitar30.mp3',
-    img: 'media/image/poi.png',
-    frameStep: 10, // one image frame is 10ms
+    // src: 'media/audio/Guitar30.mp3',
+    src: 'media/image/poi.png',
+    sampleRate: 100, // one image frame is 10ms
     name: 'Spirals',
     start: 23.5,
-    cuein: 0,
-    cueout: 1.47,
+    // cuein: 0.5,
+    // cueout: 0.8,
   },
   {
-    src: 'media/audio/Guitar30.mp3',
-    img: 'media/image/poi2.png',
+    src: 'media/image/poi2.png',
     name: 'Spirals',
-    frameStep: 10, // one image frame is 10ms
+    sampleRate: 100, // one image frame is 10ms
     start: 3,
     cuein: 0,
     cueout: 1.47,

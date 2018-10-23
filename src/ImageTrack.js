@@ -13,7 +13,6 @@ export default class {
 
   constructor() {
     this.name = 'Untitled';
-    this.imageName = undefined;
     this.customClass = undefined;
 
     this.cueIn = 0;
@@ -21,7 +20,7 @@ export default class {
     this.duration = 0;
     this.startTime = 0;
     this.endTime = 0;
-    this.sampleRate = 100; // 10ma per frame TODO: load from data
+    this.sampleRate = 100; // default: 10ms per frame TODO: load from data
   }
 
   setEventEmitter(ee) {
@@ -32,17 +31,16 @@ export default class {
     this.name = name;
   }
 
-  setImage(imageName) {
-    this.imageName = imageName;
-  }
-
-
   setCustomClass(className) {
     this.customClass = className;
   }
 
   setWaveOutlineColor() { // eslint-disable-line class-methods-use-this
     // no waveform
+  }
+
+  setSampleRate(sampleRate) {
+    this.sampleRate = sampleRate;
   }
 
   setCues(cueIn, cueOut) {
@@ -115,8 +113,8 @@ export default class {
     // no fades
   }
 
-  setBuffer() { // eslint-disable-line class-methods-use-this
-    // no playing
+  setBuffer(buffer) {
+    this.buffer = buffer; // the png image
   }
 
   setPeakData() { // eslint-disable-line class-methods-use-this
@@ -237,7 +235,7 @@ export default class {
   render(data) {
     const pixPerSec = data.sampleRate / data.resolution;
     const factor = pixPerSec / this.sampleRate;
-    const width = (300 * 3000) / data.resolution; // TODO: calc width from png width
+    const width = Math.floor(this.buffer.width * factor);
     const startX = secondsToPixels(this.startTime, data.resolution, data.sampleRate);
 
     const waveformChildren = [];
@@ -254,7 +252,7 @@ export default class {
           height: data.height,
           style: 'float: left; position: relative; margin: 0; padding: 0; z-index: 3;',
         },
-        hook: new ImageCanvasHook(this.imageName, offset, factor),
+        hook: new ImageCanvasHook(this.src, offset, factor),
       }));
 
       totalWidth -= currentWidth;
