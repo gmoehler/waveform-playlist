@@ -56,19 +56,19 @@ playlist.load([
   {
     // src: 'media/audio/Guitar30.mp3',
     src: 'media/image/poi.png',
-    sampleRate: 100, // one image frame is 10ms
+    sampleRate: 100,  // one image frame is 10ms
     name: 'Spirals',
     start: 23.5,
-    // cuein: 0.5,
-    // cueout: 0.8,
+    cuein: 0.5,       // in secs
+    cueout: 1.47,      // in secs
   },
   {
     src: 'media/image/poi2.png',
     name: 'Spirals',
-    sampleRate: 100, // one image frame is 10ms
+    sampleRate: 100,  // one image frame is 10ms
     start: 3,
-    cuein: 0,
-    cueout: 1.47,
+    cuein: 0.5,         // in secs
+    cueout: 0.7,      // in secs
 
   },
 

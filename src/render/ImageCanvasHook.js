@@ -1,11 +1,14 @@
+
 /*
 * virtual-dom hook for drawing an image to the canvas element.
 */
 class ImageCanvasHook {
-  constructor(image, offset, xStrech) {
+  constructor(image, currentSourceCue, sourceWidth, currentStartPx, targetWidth) {
     this.image = image;
-    this.offset = offset;
-    this.xStrech = xStrech;
+    this.currentSourceCue = currentSourceCue;
+    this.sourceWidth = sourceWidth;
+    this.currentStartPx = currentStartPx;
+    this.targetWidth = targetWidth;
   }
 
   hook(canvas) {
@@ -14,9 +17,8 @@ class ImageCanvasHook {
     const img = new Image();
     img.src = this.image;
     img.addEventListener('load', () => {
-      const remainingWidth = img.width - this.offset;
-      const wantedWidth = remainingWidth * this.xStrech;
-      cc.drawImage(img, this.offset, 0, remainingWidth, img.height, 0, 0, wantedWidth, canvas.height);
+      cc.drawImage(img, this.currentSourceCue, 0, this.sourceWidth, img.height,
+          this.currentStartPx, 0, this.targetWidth, canvas.height);
     });
   }
 }

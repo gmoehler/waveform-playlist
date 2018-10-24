@@ -2,12 +2,12 @@ import _assign from 'lodash.assign';
 
 import h from 'virtual-dom/h';
 
-import { secondsToPixels } from './utils/conversions';
+import { secondsToPixels, pixelsToSeconds } from './utils/conversions';
 import stateClasses from './track/states';
 
 import ImageCanvasHook from './render/ImageCanvasHook';
 
-const MAX_CANVAS_WIDTH = 1000;
+const MAX_CANVAS_WIDTH = 1000; // firefox & chrome: 32767, IE: 8,192
 
 export default class {
 
@@ -20,7 +20,7 @@ export default class {
     this.duration = 0;
     this.startTime = 0;
     this.endTime = 0;
-    this.sampleRate = 100; // default: 10ms per frame TODO: load from data
+    this.sampleRate = 100; // default: 10ms per frame if not specified in the config
   }
 
   setEventEmitter(ee) {
@@ -48,8 +48,10 @@ export default class {
       throw new Error('cue out cannot be less than cue in');
     }
 
-    this.cueIn = cueIn;
-    this.cueOut = cueOut;
+    const imageEndTime = pixelsToSeconds(this.buffer.width, 1, this.sampleRate);
+
+    this.cueIn = Math.min(cueIn, imageEndTime);
+    this.cueOut = Math.min(cueOut, imageEndTime);
     this.duration = this.cueOut - this.cueIn;
     this.endTime = this.startTime + this.duration;
   }
@@ -233,36 +235,44 @@ export default class {
   }
 
   render(data) {
+    // calc based on the waveform resolution and sample rate
     const pixPerSec = data.sampleRate / data.resolution;
-    const factor = pixPerSec / this.sampleRate;
-    const width = Math.floor(this.buffer.width * factor);
-    const startX = secondsToPixels(this.startTime, data.resolution, data.sampleRate);
+
+    const sourceWidthPx = secondsToPixels(this.duration, 1, this.sampleRate);
+    const imageStretchFactor = pixPerSec / this.sampleRate;
+    const targetWidthPx = Math.floor(sourceWidthPx * imageStretchFactor); // width to be drawn
+    const startPx = Math.floor(this.startTime * pixPerSec);
 
     const waveformChildren = [];
     const channelChilds = [];
-    let offset = 0;
-    let totalWidth = width;
 
-    while (totalWidth > 0) {
-      const currentWidth = Math.min(totalWidth, MAX_CANVAS_WIDTH);
+    let currentSourceCue = secondsToPixels(this.cueIn, 1, this.sampleRate);
+    let currentStartPx = 0;
 
+    // split into portions of MAX_CANVAS_WIDTH at max
+    const numSteps = Math.ceil(targetWidthPx / MAX_CANVAS_WIDTH);
+    const sourceWidthStep = Math.floor(sourceWidthPx / numSteps);
+    const targetWidthStep = Math.floor(sourceWidthStep * imageStretchFactor);
+
+    for (let i = 0; i < numSteps; i += 1) {
       channelChilds.push(h('canvas', {
         attributes: {
-          width: currentWidth,
+          width: targetWidthStep,
           height: data.height,
           style: 'float: left; position: relative; margin: 0; padding: 0; z-index: 3;',
         },
-        hook: new ImageCanvasHook(this.src, offset, factor),
+        hook: new ImageCanvasHook(this.src, currentSourceCue, sourceWidthStep,
+          currentStartPx, targetWidthStep),
       }));
 
-      totalWidth -= currentWidth;
-      offset += MAX_CANVAS_WIDTH;
+      currentSourceCue += sourceWidthStep;
+      currentStartPx += targetWidthStep;
     }
 
     const channel = h(`div.channel.channel-${0}`,
       {
         attributes: {
-          style: `height: ${data.height}px; width: ${width}px; top: 0px; left: ${startX}px; position: absolute; margin: 0; padding: 0; z-index: 1;`,
+          style: `height: ${data.height}px; width: ${targetWidthPx}px; top: 0px; left: ${startPx}px; position: absolute; margin: 0; padding: 0; z-index: 1;`,
         },
       },
         channelChilds,
