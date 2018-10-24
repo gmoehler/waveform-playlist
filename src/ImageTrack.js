@@ -247,7 +247,6 @@ export default class {
     const channelChilds = [];
 
     let currentSourceCue = secondsToPixels(this.cueIn, 1, this.sampleRate);
-    let currentStartPx = 0;
 
     // split into portions of MAX_CANVAS_WIDTH at max
     const numSteps = Math.ceil(targetWidthPx / MAX_CANVAS_WIDTH);
@@ -261,12 +260,10 @@ export default class {
           height: data.height,
           style: 'float: left; position: relative; margin: 0; padding: 0; z-index: 3;',
         },
-        hook: new ImageCanvasHook(this.src, currentSourceCue, sourceWidthStep,
-          currentStartPx, targetWidthStep),
+        hook: new ImageCanvasHook(this.src, currentSourceCue, sourceWidthStep, targetWidthStep),
       }));
 
       currentSourceCue += sourceWidthStep;
-      currentStartPx += targetWidthStep;
     }
 
     const channel = h(`div.channel.channel-${0}`,
