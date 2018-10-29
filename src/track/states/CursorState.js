@@ -13,38 +13,52 @@ export default class {
 
   click(e) {
     e.preventDefault();
+    const xMouseUp = e.offsetX;
 
-    const startX = e.offsetX;
-    const startTime = pixelsToSeconds(startX, this.samplesPerPixel, this.sampleRate);
-
-    this.track.ee.emit('select', startTime, startTime, this.track);
+    if (this.clickEnd - this.clickStart > 500
+        || Math.abs(xMouseUp - this.xMouseDown) > 10) {
+      // range selection
+      this.completeSelection(this.xMouseDown, xMouseUp, true);
+    } else {
+      // set curser
+      this.completeSelection(this.xMouseDown, xMouseUp, true);
+    }
   }
 
-  completeSelection(xMouseUp) {
-    const startTime = pixelsToSeconds(this.xMouseDown, this.samplesPerPixel, this.sampleRate);
+  completeSelection(xMouseDown, xMouseUp, completeSelection) {
+    const startTime = pixelsToSeconds(xMouseDown, this.samplesPerPixel, this.sampleRate);
     const endTime = pixelsToSeconds(xMouseUp, this.samplesPerPixel, this.sampleRate);
 
     this.track.ee.emit('select', startTime, endTime, this.track);
-    this.active = false;
+    this.active = !completeSelection;
   }
 
   mousedown(e) {
     e.preventDefault();
     this.active = true;
+    this.clickStart = new Date().getTime();
     this.xMouseDown = e.offsetX;
   }
 
   mouseup(e) {
     if (this.active) {
       e.preventDefault();
-      this.completeSelection(e.offsetX);
+      this.clickEnd = new Date().getTime();
     }
   }
 
-  mouseleave(e) {
+  mousemove(e) {
     if (this.active) {
       e.preventDefault();
-      this.completeSelection(e.offsetX);
+      const xMousePos = e.offsetX;
+      // draw selection based on mouse position
+      this.completeSelection(this.xMouseDown, xMousePos, false);
+    }
+  }
+
+  mouseleave() {
+    if (this.active) {
+      this.active = false;
     }
   }
 
@@ -53,6 +67,6 @@ export default class {
   }
 
   static getEvents() {
-    return ['click', 'mousedown', 'mouseup', 'mouseleave'];
+    return ['click', 'mousedown', 'mouseup', 'mousemove', 'mouseleave'];
   }
 }
