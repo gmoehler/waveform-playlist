@@ -18,14 +18,14 @@ export default class {
     if (this.clickEnd - this.clickStart > 500
         || Math.abs(xMouseUp - this.xMouseDown) > 10) {
       // range selection
-      this.completeSelection(this.xMouseDown, xMouseUp, true);
+      this.updateSelection(this.xMouseDown, xMouseUp, true);
     } else {
       // set curser
-      this.completeSelection(this.xMouseDown, xMouseUp, true);
+      this.updateSelection(this.xMouseDown, xMouseUp, true);
     }
   }
 
-  completeSelection(xMouseDown, xMouseUp, completeSelection) {
+  updateSelection(xMouseDown, xMouseUp, completeSelection) {
     const startTime = pixelsToSeconds(xMouseDown, this.samplesPerPixel, this.sampleRate);
     const endTime = pixelsToSeconds(xMouseUp, this.samplesPerPixel, this.sampleRate);
 
@@ -51,8 +51,8 @@ export default class {
     if (this.active) {
       e.preventDefault();
       const xMousePos = e.offsetX;
-      // draw selection based on mouse position
-      this.completeSelection(this.xMouseDown, xMousePos, false);
+      // update selection based on mouse position
+      this.updateSelection(this.xMouseDown, xMousePos, false);
     }
   }
 

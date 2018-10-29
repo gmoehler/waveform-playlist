@@ -9,7 +9,7 @@
   .playlist .channel-progress {
     background: orange; }
   .playlist .cursor {
-    background: black; }
+    background: orangered; }
   .playlist .wp-fade {
     background-color: rgba(0, 0, 0, 0.1); }
   .playlist .state-cursor,
@@ -23,6 +23,8 @@
     cursor: ew-resize; }
   .playlist .selection.point {
     background: red; }
+  .playlist .selection.selpoint {
+    background: blue; }
   .playlist .selection.segment {
     background: rgba(0, 0, 0, 0.1); }
   .playlist .channel-wrapper.silent .channel {

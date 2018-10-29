@@ -18,7 +18,7 @@
   }
 
   .cursor {
-    background: black;
+    background: orangered;
   }
 
   .wp-fade {
@@ -27,7 +27,7 @@
 
   .state-cursor,
   .state-select {
-    cursor: text;
+    cursor: crosshair;
   }
 
   .state-fadein {
@@ -44,6 +44,10 @@
 
   .selection.point {
     background: red;
+  }
+
+  .selection.selpoint {
+    background: blue;
   }
 
   .selection.segment {

@@ -521,21 +521,37 @@ export default class {
     });
 
     waveformChildren.push(channels);
-    waveformChildren.push(this.renderOverlay(data));
+    waveformChildren.push(this.renderOverlay(data)); // waveform with canvas
 
     // draw cursor selection on active track.
-    if (data.isActive === true) {
-      const cStartX = secondsToPixels(data.timeSelection.start, data.resolution, data.sampleRate);
-      const cEndX = secondsToPixels(data.timeSelection.end, data.resolution, data.sampleRate);
-      const cWidth = (cEndX - cStartX) + 1;
-      const cClassName = (cWidth > 1) ? '.segment' : '.point';
-
-      waveformChildren.push(h(`div.selection${cClassName}`, {
+    // if (data.isActive === true) {
+    const cStartX = secondsToPixels(data.timeSelection.start, data.resolution, data.sampleRate);
+    const cEndX = secondsToPixels(data.timeSelection.end, data.resolution, data.sampleRate);
+    const cWidth = (cEndX - cStartX) + 1;
+    if (cWidth === 1) {
+      waveformChildren.push(h('div.selection.point', {
+        attributes: {
+          style: `position: absolute; width: 1px; bottom: 0; top: 0; left: ${cStartX}px; z-index: 4;`,
+        },
+      }));
+    } else {
+      waveformChildren.push(h('div.selection.selpoint', {
+        attributes: {
+          style: `position: absolute; width: 1px; bottom: 0; top: 0; left: ${cStartX}px; z-index: 4;`,
+        },
+      }));
+      waveformChildren.push(h('div.selection.segment', {
         attributes: {
           style: `position: absolute; width: ${cWidth}px; bottom: 0; top: 0; left: ${cStartX}px; z-index: 4;`,
         },
       }));
+      waveformChildren.push(h('div.selection.selpoint', {
+        attributes: {
+          style: `position: absolute; width: 1px; bottom: 0; top: 0; left: ${cEndX}px; z-index: 4;`,
+        },
+      }));
     }
+    // }
 
     const waveform = h('div.waveform',
       {
