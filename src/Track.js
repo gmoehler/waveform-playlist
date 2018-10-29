@@ -535,7 +535,7 @@ export default class {
         },
       }));
     } else {
-      waveformChildren.push(h('div.selection.selpoint', {
+      waveformChildren.push(h('div.selection.point', {
         attributes: {
           style: `position: absolute; width: 1px; bottom: 0; top: 0; left: ${cStartX}px; z-index: 4;`,
         },
