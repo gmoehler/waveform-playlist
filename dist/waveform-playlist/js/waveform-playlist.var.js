@@ -7959,7 +7959,7 @@ var WaveformPlaylist =
 	    value: function setupInteractions() {
 	      var _this = this;
 	
-	      this.annotations.forEach(function (a, i) {
+	      this.annotationList.forEach(function (a, i) {
 	        var leftShift = new _DragInteraction2.default(_this.playlist, {
 	          direction: 'left',
 	          index: i

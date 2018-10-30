@@ -181,7 +181,8 @@ class AnnotationList {
         const sampleRate = this.playlist.sampleRate;
         const pixPerSec = sampleRate / samplesPerPixel;
         const pixOffset = secondsToPixels(this.playlist.scrollLeft, samplesPerPixel, sampleRate);
-        const left = Math.floor((note.start * pixPerSec) - pixOffset);
+        const playListControlWidth = this.playlist.controls.show ? this.playlist.controls.width : 0;
+        const left = playListControlWidth + Math.floor((note.start * pixPerSec) - pixOffset);
         const width = Math.ceil((note.end * pixPerSec) - (note.start * pixPerSec));
 
         return h('div.annotation-box',
@@ -196,11 +197,12 @@ class AnnotationList {
             h('span.id',
               {
                 onclick: () => {
-                  if (this.playlist.isContinuousPlay) {
+                  this.playlist.ee.emit('select', this.annotations[i].start, this.annotations[i].end);
+/*                  if (this.playlist.isContinuousPlay) {
                     this.playlist.ee.emit('play', this.annotations[i].start);
                   } else {
                     this.playlist.ee.emit('play', this.annotations[i].start, this.annotations[i].end);
-                  }
+                  } */
                 },
               },
               [

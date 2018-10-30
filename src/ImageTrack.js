@@ -21,6 +21,7 @@ export default class {
     this.startTime = 0;
     this.endTime = 0;
     this.sampleRate = 100; // default: 10ms per frame if not specified in the config
+    this.annotationList = {};
   }
 
   setEventEmitter(ee) {
@@ -54,6 +55,10 @@ export default class {
     this.cueOut = Math.min(cueOut, imageEndTime);
     this.duration = this.cueOut - this.cueIn;
     this.endTime = this.startTime + this.duration;
+  }
+
+  setAnnotations(annotationList) {
+    this.annotationList = annotationList;
   }
 
   /*
@@ -307,6 +312,16 @@ export default class {
       }));
     }
     // }
+
+    this.annotationList.annotations.forEach((note) => {
+      const aEndX = secondsToPixels(note.end, data.resolution, data.sampleRate);
+      waveformChildren.push(h('div.selection.annoation', {
+        attributes: {
+          style: `position: absolute; width: 1px; bottom: 0; top: 0; left: ${aEndX}px; z-index: 4;`,
+        },
+      }));
+    });
+
 
     const waveform = h('div.waveform',
       {

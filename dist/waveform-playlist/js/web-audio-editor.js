@@ -1,3 +1,36 @@
+const notes = [
+  {
+    begin: '0.000',
+    children: [],
+    end: '2.680',
+    id: 'f000001',
+    language: 'eng',
+    lines: [
+      '1',
+    ],
+  },
+  {
+    begin: '2.680',
+    children: [],
+    end: '5.880',
+    id: 'f000002',
+    language: 'eng',
+    lines: [
+      'From fairest creatures we desire increase,',
+    ],
+  },
+  {
+    begin: '5.880',
+    children: [],
+    end: '9.240',
+    id: 'f000003',
+    language: 'eng',
+    lines: [
+      "That thereby beauty's rose might never die,",
+    ],
+  },
+];
+
 const playlist = WaveformPlaylist.init({
   samplesPerPixel: 3000,
   waveHeight: 100,
@@ -15,6 +48,13 @@ const playlist = WaveformPlaylist.init({
   },
   seekStyle: 'line',
   zoomLevels: [500, 1000, 3000, 5000],
+  annotationList: {
+    annotations: notes,
+    // controls: actions,
+    editable: true,
+    isContinuousPlay: false,
+    linkEndpoints: true,
+  },
 });
 
 playlist.load([

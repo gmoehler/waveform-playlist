@@ -27,6 +27,8 @@
     background: rgb(57, 57, 77); }
   .playlist .selection.segment {
     background: rgba(0, 0, 0, 0.1); }
+  .playlist .selection.annoation {
+    background: yellowgreen; }
   .playlist .channel-wrapper.silent .channel {
     opacity: 0.3; }
   .playlist .controls {

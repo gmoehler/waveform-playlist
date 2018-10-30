@@ -35,7 +35,7 @@ export default class {
 
     this.fadeType = 'logarithmic';
     this.masterGain = 1;
-    this.annotations = [];
+    this.annotationList = {};
     this.durationFormat = 'hh:mm:ss.uuu';
     this.isAutomaticScroll = false;
     this.resetDrawTimer = undefined;
@@ -152,6 +152,9 @@ export default class {
       config.linkEndpoints,
       config.isContinuousPlay,
     );
+    this.tracks.forEach((track) => {
+      track.setAnnotations(this.annotationList);
+    });
   }
 
   setEventEmitter(ee) {
@@ -360,6 +363,7 @@ export default class {
         track.setCues(cueIn, cueOut);
         track.setCustomClass(customClass);
         track.setWaveOutlineColor(waveOutlineColor);
+        track.setAnnotations(this.annotationList);
 
         if (isPng && info.sampleRate !== undefined) {
           track.setSampleRate(info.sampleRate);
