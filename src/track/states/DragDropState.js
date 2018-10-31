@@ -10,6 +10,20 @@ export default class {
     this.sampleRate = sampleRate;
   }
 
+  dragenter(e) {
+    e.preventDefault();
+    e.target.classList.add('drag-enter');
+  }
+
+  dragover(e) {
+    e.preventDefault();
+  }
+
+  dragleave(e) {
+    e.preventDefault();
+    e.target.classList.remove('drag-enter');
+  }
+
   drop(e) {
     e.preventDefault();
     const xMousePos = e.offsetX;
@@ -17,7 +31,9 @@ export default class {
 
     this.track.ee.emit('select', endTime, endTime, this.track);
 
-    // let dropEvent = e.originalEvent;
+    for (let i = 0; i < e.dataTransfer.files.length; i++) {
+      console.log(e.dataTransfer.files[i]);
+    }
   }
 
   static getClass() {
@@ -25,6 +41,6 @@ export default class {
   }
 
   static getEvents() {
-    return ['drop'];
+    return ['dragenter', 'dragover', 'dragleave', 'drop'];
   }
 }
