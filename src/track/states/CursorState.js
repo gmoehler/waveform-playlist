@@ -14,15 +14,7 @@ export default class {
   click(e) {
     e.preventDefault();
     const xMouseUp = e.offsetX;
-
-    if (this.clickEnd - this.clickStart > 500
-        || Math.abs(xMouseUp - this.xMouseDown) > 10) {
-      // range selection
-      this.updateSelection(this.xMouseDown, xMouseUp, true);
-    } else {
-      // set curser
-      this.updateSelection(this.xMouseDown, xMouseUp, true);
-    }
+    this.updateSelection(this.xMouseDown, xMouseUp, true);
   }
 
   updateSelection(xMouseDown, xMouseUp, completeSelection) {
